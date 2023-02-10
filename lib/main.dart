@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
       initialRoute: "/login",
       routes: {
         "/home": (context) => const HomeRoute(),
-        "/deposit": (context) => const DepositRoute(),
-        "/withdrawal": (context) => const WithdrawalRoute(),
+        "/deposit": (context) => DepositRoute(),
+        "/withdrawal": (context) => WithdrawalRoute(),
         "/balance": (context) => const BalanceRoute(),
         "/login": (context) => LoginRoute(),
       },
@@ -90,8 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
 
           // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
+          // arranges them ven horizontally, and tries to be as tall as its parent.
           //
           // Invoke "debug painting" (press "p" in the console, choose the
           // "Toggle Debug Paint" action from the Flutter Inspector in Android
@@ -147,53 +146,68 @@ class HomeRoute extends StatelessWidget {
                 padding: EdgeInsets.all(20),
                 child: Column(
                   children: <Widget>[
-                    Text("Username: John Doe", style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(height: 10),
-                    Text("Account Number: 123456"),
-                    SizedBox(height: 10),
+
                     Text(getSalutation()),
                     SizedBox(height: 10),
-                    Text("Today's Date: ${DateTime.now().toString().substring(0, 10)}"),
+                    Text("John Doe", style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 10),
+                    Text("ACC: 123456"),
+                    SizedBox(height: 10),
+                    Text(DateTime.now().toString().substring(0, 10)),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 50),
             Expanded(
               child: ListView(
                 children: <Widget>[
-                  Container(
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.green[100],
-                      borderRadius: BorderRadius.circular(10),
+
+                    Column(
+                      children: [
+                        GestureDetector(
+                            onTap: () => Navigator.of(context).pushNamed('/deposit'),
+                                child: Container(
+                                      height: 70,
+                                      decoration: BoxDecoration(
+                                      color: Colors.green[100],
+                                      borderRadius: BorderRadius.circular(10),
+                                      ),
+                                child: const Center(
+                                    child: Text("Deposit"),
+                                  ),
+                              ),
+                        ),
+                        SizedBox(height: 20),
+                        GestureDetector(
+                              onTap: () => Navigator.of(context).pushNamed('/withdrawal'),
+                                  child: Container(
+                                      height: 70,
+                                      decoration: BoxDecoration(
+                                      color: Colors.lime[600],
+                                      borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Center(
+                                      child: Text("Withdrawal"),
+                                      ),
+                                  ),
+                        ),
+                        SizedBox(height: 20),
+                        GestureDetector(
+                            onTap: () => Navigator.of(context).pushNamed('/balance'),
+                                  child: Container(
+                                      height: 70,
+                                      decoration: BoxDecoration(
+                                      color: Colors.teal[200],
+                                      borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Center(
+                                        child: Text("Balance"),
+                                      ),
+                                  ),
+                             ),
+                      ],
                     ),
-                    child: Center(
-                      child: Text("Balance: \$1000"),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.yellow[100],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text("Deposit: \$500"),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Colors.red[100],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text("Withdrawal: \$200"),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -284,25 +298,161 @@ class LoginRoute extends StatelessWidget {
 
 // Deposit
 class DepositRoute extends StatelessWidget {
-  const DepositRoute({super.key});
+  DepositRoute({super.key});
+  final _formKey = GlobalKey<FormState>();
+  String? _fromAccountNumber, _toAccountNumber;
+  late int _amount;
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      // Perform transfer logic here...
+      // ...
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
-      body: Container(),
+      body: Container(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'From Account Number',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a valid account number';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _fromAccountNumber = value!,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'To Account Number',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a valid account number';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _toAccountNumber = value!,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Amount',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter an amount';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _amount = int.parse(value!),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: TextButton(
+                      child: Text('Transfer'),
+                      onPressed: _submitForm,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+      ),
+
+
     );
   }
 }
 
 class WithdrawalRoute extends StatelessWidget {
-  const WithdrawalRoute({super.key});
+  WithdrawalRoute({super.key});
+
+  final _formKey = GlobalKey<FormState>();
+  String? _fromAccountNumber, _toAccountNumber;
+  late int _amount;
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      // Perform transfer logic here...
+      // ...
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
-      body: Container(),
+      body: Container(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'From Account Number',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a valid account number';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _fromAccountNumber = value!,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'To Account Number',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a valid account number';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _toAccountNumber = value!,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Amount',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter an amount';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _amount = int.parse(value!),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: TextButton(
+                      child: Text('Transfer'),
+                      onPressed: _submitForm,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+      ),
+
+
     );
   }
 }
